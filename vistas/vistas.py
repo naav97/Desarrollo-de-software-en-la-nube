@@ -1,3 +1,3 @@
 from modelos import \
-    db \
-    Usuario, \
+    db, \
+    Usuario \
