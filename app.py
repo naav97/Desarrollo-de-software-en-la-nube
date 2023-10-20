@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from modelos import db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///mydatabase'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:toor@localhost/flask_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY']= 'super-secreto'
 app.config['PROPAGATE_EXCEPTIONS'] = True
