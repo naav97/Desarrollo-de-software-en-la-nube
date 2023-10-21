@@ -6,7 +6,6 @@ from flask_restful import Resource
 from flask import request
 from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required
-from datetime import datetime
 from werkzeug.utils import secure_filename
 
 tareas_schema = TareaSchema(many=True)
