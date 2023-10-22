@@ -146,3 +146,6 @@ cython_debug/
 #DataBase
 test.db
 dbapp.sqlite
+
+uploads/*
+postgres-data/

@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    container_name: conversor-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: contraseña
+      POSTGRES_DB: conversor
+    image: "postgres:alpine"
+    networks:
+      - app
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d conversor -U postgres -p 5432"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 20s
+  api-conversor:
+    build: .
+    container_name: api-conversor
+    networks:
+      - app
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  pg-data:
+    driver: local
