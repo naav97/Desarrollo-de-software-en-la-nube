@@ -105,7 +105,9 @@ class VistaSignIn():
             nuevo_usuario = Usuario(usuario=request.json['usuario'], contrasena=contrasena_encriptada)
             db.session.add(nuevo_usuario)
             db.session.commit()
-            return {"message": "Usuario creado con éxito"}, 201
+            additional_claims = {"correo": nuevo_usuario.correo}
+            token_de_acceso = create_access_token(identity=nuevo_usuario.id, additional_claims=additional_claims)
+            return {"message": "Usuario creado con éxito", "id":nuevo_usuario.id, "correo":nuevo_usuario.correo, "token":token_de_acceso}, 201
         else:
             return {"message": "Usuario ya existe"}, 409
     
