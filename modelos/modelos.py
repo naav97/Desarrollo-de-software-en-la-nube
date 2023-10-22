@@ -13,6 +13,7 @@ class Usuario(db.Model):
     usuario = db.Column(db.String(50), nullable=False)
     contrasena = db.Column(db.String(50), nullable=False)
     nombre = db.Column(db.String(50))
+    correo = db.Column(db.String(50), unique=True, nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     parent = db.relationship('Usuario', remote_side=[id])
 

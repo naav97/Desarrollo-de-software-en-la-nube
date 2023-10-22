@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from modelos import db
-from vistas import TareaResource, TareaBorrarResource
+from vistas import TareaResource, TareaBorrarResource, VistaSignIn, VistaLogIn
 from celery import Celery, Task
 
 app = Flask(__name__)
@@ -43,4 +43,7 @@ cors = CORS(app)
 api = Api(app)
 api.add_resource(TareaResource, '/api/tasks')
 api.add_resource(TareaBorrarResource, '/api/tasks/<int:tarea_id>')
+api.add_resource(TareaBorrarResource, '/tasks/<int:tarea_id>')
+api.add_resource(VistaSignIn, '/api/signin')
+api.add_resource(VistaLogIn, '/api/login')
 
