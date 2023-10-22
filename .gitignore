@@ -148,3 +148,4 @@ test.db
 dbapp.sqlite
 
 uploads/*
+postgres-data/
