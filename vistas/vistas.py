@@ -31,7 +31,7 @@ def process_file(old_filename, new_filename, taskId):
     except Exception as e:
         return str(e)
 
-class TareaResource(Resource):
+class TareasResource(Resource):
     def get(self):
         tareas = Tarea.query.all()
         
