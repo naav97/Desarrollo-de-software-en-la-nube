@@ -46,4 +46,3 @@ api.add_resource(TareaResource, '/api/tasks/<int:tarea_id>')
 api.add_resource(TareaBorrarResource, '/api/tasks/<int:tarea_id>')
 api.add_resource(VistaSignIn, '/api/signin')
 api.add_resource(VistaLogIn, '/api/login')
-
