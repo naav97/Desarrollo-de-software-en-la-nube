@@ -127,12 +127,14 @@ class VistaLogIn():
 
     def post(self):
         contrasena_encriptada = hashlib.md5(request.json['contrasena'].encode('utf-8')).hexdigest()
-        usuario = Usuario.query.filter(Usuario.usuario == request.json['usuario'], Usuario.contrasena == contrasena_encriptada).first()
+        usuario = Usuario.query.filter(Usuario.usuario == request.json['usuario'], Usuario.contrasena == contrasena_encriptada, Usuario.correo == request.json['correo']).first()
 
         db.session.commit()
 
         if usuario is None:
             return "El usuario no existe", 404
         else:
-            token_de_acceso = create_access_token(identity=usuario.id)
+            additional_claims = {"correo": usuario.correo}
+            print(additional_claims)
+            token_de_acceso = create_access_token(identity=usuario.id, additional_claims=additional_claims)
             return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": usuario.id, "username": usuario.usuario, "idParent": usuario.parent_id}, 200
