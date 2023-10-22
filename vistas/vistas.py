@@ -1,35 +1,15 @@
 import os
 import subprocess
+import hashlib
 from modelos import db, Usuario, Tarea, TareaSchema, UsuarioSchema
 from flask_restful import Resource
 from flask import request
-from werkzeug.utils import secure_filename
 from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required
-import hashlib
+from werkzeug.utils import secure_filename
 
 tareas_schema = TareaSchema(many=True)
 usario_schema = UsuarioSchema()
-
-UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = {'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'webm', 'avi', 'mpeg', 'wmv'}
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@shared_task(ignore_result=False)
-def process_file(old_filename, new_filename, taskId):
-    uploaded_file = os.path.join('./uploads', old_filename)
-    processed_file = os.path.join('./uploads', new_filename)
-    cmd = ['ffmpeg', '-i', uploaded_file,  processed_file]
-    try:
-        subprocess.run(cmd, check=True)
-        task = Tarea.query.filter(Tarea.id == taskId).first()
-        task.estado = "processed"
-        db.session.commit()
-        return True
-    except Exception as e:
-        return str(e)
 
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'webm', 'avi', 'mpeg', 'wmv'}
@@ -57,6 +37,7 @@ class TareasResource(Resource):
         
         return tareas_schema.dump(tareas), 200
 
+    @jwt_required()
     def post(self):
         if 'archivo' not in request.files:
             return {"message": "Error no se envia archivo"}, 400
