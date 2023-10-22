@@ -5,9 +5,8 @@ from flask_restful import Resource
 from flask import request
 from werkzeug.utils import secure_filename
 from celery import shared_task
-from flask_jwt_extended import create_access_token, get_current_user, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required
 import hashlib
-import json
 
 tareas_schema = TareaSchema(many=True)
 usario_schema = UsuarioSchema()
