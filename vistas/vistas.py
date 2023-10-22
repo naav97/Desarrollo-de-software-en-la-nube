@@ -107,7 +107,7 @@ class TareaBorrarResource(Resource):
         else:
             return {"message": "Tarea no encontrada"}, 404
 
-class VistaSignIn():
+class VistaSignIn(Resource):
     def post(self):
         usuario = Usuario.query.filter_by(usuario=request.json['usuario']).first()
         if usuario is None:
@@ -133,7 +133,7 @@ class VistaSignIn():
         db.session.commit()
         return '', 204
 
-class VistaLogIn():
+class VistaLogIn(Resource):
 
     def post(self):
         contrasena_encriptada = hashlib.md5(request.json['contrasena'].encode('utf-8')).hexdigest()

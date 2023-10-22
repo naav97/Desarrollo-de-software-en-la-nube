@@ -44,7 +44,6 @@ api = Api(app)
 api.add_resource(TareasResource, '/api/tasks')
 api.add_resource(TareaResource, '/api/tasks/<int:tarea_id>')
 api.add_resource(TareaBorrarResource, '/api/tasks/<int:tarea_id>')
-api.add_resource(TareaBorrarResource, '/tasks/<int:tarea_id>')
 api.add_resource(VistaSignIn, '/api/signin')
 api.add_resource(VistaLogIn, '/api/login')
 
