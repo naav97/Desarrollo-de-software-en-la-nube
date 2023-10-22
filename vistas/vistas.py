@@ -37,6 +37,7 @@ class TareaResource(Resource):
         
         return tareas_schema.dump(tareas), 200
 
+    @jwt_required()
     def post(self):
         if 'archivo' not in request.files:
             return {"message": "Error no se envia archivo"}, 400
