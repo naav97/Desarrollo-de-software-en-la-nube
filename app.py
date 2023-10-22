@@ -24,8 +24,8 @@ cors = CORS(app)
 api = Api(app)
 api.add_resource(TareaResource, '/tasks')
 api.add_resource(TareaBorrarResource, '/tasks/<int:tarea_id>')
-api.add_resource(VistaSignIn, '/signin')
-api.add_resource(VistaLogIn, '/login')
+api.add_resource(VistaSignIn, '/api/signin')
+api.add_resource(VistaLogIn, '/api/login')
 
 if __name__=="__main__":
     app.run(port=5001)
