@@ -5,9 +5,8 @@ from flask_restful import Resource
 from flask import request
 from werkzeug.utils import secure_filename
 from celery import shared_task
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 import hashlib
-import json
 
 tareas_schema = TareaSchema(many=True)
 usario_schema = UsuarioSchema()
@@ -52,7 +51,7 @@ def process_file(old_filename, new_filename, taskId):
     except Exception as e:
         return str(e)
 
-class TareaResource(Resource):
+class TareasResource(Resource):
     def get(self):
         tareas = Tarea.query.all()
         
@@ -81,6 +80,17 @@ class TareaResource(Resource):
             except Exception as e:
                 db.session.rollback()
                 return {"message": "Error: "+str(e)}, 500
+
+class TareaResource(Resource):
+    @jwt_required()
+    def get(self, taskId):
+
+        tarea = Tarea.query.get(taskId)
+
+        if tarea:
+            return {"Tarea":[tareas_schema.dumps(tarea)], "URL":[""]}, 200
+        else:
+            return {"message": "Tarea no encontrada"}, 404
 
 class TareaBorrarResource(Resource):
     def delete(self, tarea_id):
