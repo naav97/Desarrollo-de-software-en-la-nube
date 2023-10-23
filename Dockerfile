@@ -19,4 +19,5 @@ ENV FLASK_DEBUG=1
 EXPOSE 5000
 
 # Define the command to run the Flask development server
+RUN chmod +x ./run.sh
 CMD ./run.sh
