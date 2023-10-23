@@ -2,8 +2,9 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from modelos import db
-from vistas import TareasResource, TareaResource, TareaBorrarResource, VistaSignIn, VistaLogIn
+from vistas import TareasResource, TareaResource, TareaBorrarResource, VistaSignUp, VistaLogIn, VistaDownload
 from celery import Celery, Task
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:contraseña@db:5432/conversor'
@@ -13,8 +14,8 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['CELERY'] = {
-    "broker_url": "redis://localhost",
-    "result_backend": "redis://localhost",
+    "broker_url": "redis://redis:6379/0",
+    "result_backend": "redis://redis:6379/0",
     "task_ignore_result": True,
 }
 
@@ -44,5 +45,8 @@ api = Api(app)
 api.add_resource(TareasResource, '/api/tasks')
 api.add_resource(TareaResource, '/api/tasks/<int:tarea_id>')
 api.add_resource(TareaBorrarResource, '/api/tasks/<int:tarea_id>')
-api.add_resource(VistaSignIn, '/api/signin')
-api.add_resource(VistaLogIn, '/api/login')
+api.add_resource(VistaSignUp, '/api/auth/signup')
+api.add_resource(VistaLogIn, '/api/auth/login')
+api.add_resource(VistaDownload, '/api/download/<string:filename>')
+
+jwt = JWTManager(app)

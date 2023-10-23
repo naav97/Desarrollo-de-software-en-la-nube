@@ -26,9 +26,18 @@ services:
       - app
     ports:
       - "5001:5000"
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+  redis:
+    image: redis:6-alpine
+    container_name: conversor-redis
+    ports:
+      - "6380:6379"
+    networks:
+      - app
 
 networks:
   app:
