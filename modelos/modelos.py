@@ -14,8 +14,6 @@ class Usuario(db.Model):
     contrasena = db.Column(db.String(50), nullable=False)
     nombre = db.Column(db.String(50))
     correo = db.Column(db.String(50), unique=True, nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    parent = db.relationship('Usuario', remote_side=[id])
 
 class UsuarioSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -33,6 +31,7 @@ class Tarea(db.Model):
     formato_nuevo = db.Column(db.String(5), nullable=False)
     estado = db.Column(db.String(20), nullable=False)
     fecha_subida = db.Column(db.DateTime, default=datetime.utcnow)
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
 class TareaSchema(SQLAlchemyAutoSchema):
     class Meta:

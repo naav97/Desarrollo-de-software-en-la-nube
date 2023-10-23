@@ -6,6 +6,8 @@ WORKDIR /app
 # Copy the rest of the application code to the container
 COPY . .
 
+RUN apk add ffmpeg
+
 # Install the dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
@@ -17,4 +19,4 @@ ENV FLASK_DEBUG=1
 EXPOSE 5000
 
 # Define the command to run the Flask development server
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ./run.sh
