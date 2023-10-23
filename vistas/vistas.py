@@ -7,6 +7,7 @@ from flask import request, send_from_directory, url_for
 from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
+from sqlalchemy import desc, asc
 
 tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
@@ -39,7 +40,11 @@ class TareasResource(Resource):
     @jwt_required()
     def get(self):
         id_usuario = get_jwt_identity()
+        max = request.args.get("max", None)
+        order = request.args.get("order", None)
         tareas = Tarea.query.filter_by(id_usuario=id_usuario)
+        tareas = tareas.order_by(desc(Tarea.id)) if order == "1" else tareas.order_by(asc(Tarea.id))
+        tareas = tareas.limit(max)
         
         return tareas_schema.dump(tareas), 200
 
