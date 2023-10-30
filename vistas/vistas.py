@@ -8,6 +8,7 @@ from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, asc
+import uuid
 
 tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
@@ -57,7 +58,7 @@ class TareasResource(Resource):
         if request.files['archivo'].filename == '':
             return {"message": "Error no se envia archivo"}, 400
         if allowed_file(request.files['archivo'].filename):
-            nombreSec = secure_filename(request.files['archivo'].filename)
+            nombreSec = str(uuid.uuid1())+secure_filename(request.files['archivo'].filename)
             request.files['archivo'].save(os.path.join(UPLOAD_FOLDER, nombreSec))
             nombreNuevo = nombreSec.rsplit('.', 1)[0]+'.'+request.form.get('formato')
             try:
