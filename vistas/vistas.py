@@ -8,6 +8,7 @@ from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, asc
+from app import celery_app
 import uuid
 
 tarea_schema = TareaSchema()
@@ -19,23 +20,6 @@ ALLOWED_EXTENSIONS = {'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'webm', 'avi', '
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@shared_task(ignore_result=False)
-def process_file(old_filename, new_filename, taskId):
-    uploaded_file = os.path.join('./uploads', old_filename)
-    processed_file = os.path.join('./uploads', new_filename)
-    cmd = ['ffmpeg', '-i', uploaded_file,  processed_file]
-    task = Tarea.query.filter(Tarea.id == taskId).first()
-    try:
-        subprocess.run(cmd, check=True)
-        print("Procesando tarea")
-        task.estado = "processed"
-        db.session.commit()
-        return True
-    except Exception as e:
-        task.estado = "failed"
-        db.session.commit()
-        return str(e)
 
 class TareasResource(Resource):
     @jwt_required()
@@ -71,7 +55,7 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                process_file.delay(nombreSec, nombreNuevo, nuevaT.id)
+                celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id))
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()
