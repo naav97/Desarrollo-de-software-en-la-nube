@@ -38,6 +38,10 @@ def process_file(old_filename, new_filename, taskId):
         return str(e)
 
 class TareasResource(Resource):
+
+    def __init__(self, celery_app):
+        self.celery_app = celery_app
+        
     @jwt_required()
     def get(self):
         id_usuario = get_jwt_identity()
