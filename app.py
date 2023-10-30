@@ -42,7 +42,7 @@ db.create_all()
 cors = CORS(app)
 
 api = Api(app)
-api.add_resource(TareasResource, '/api/tasks')
+api.add_resource(TareasResource, '/api/tasks', resource_class_kwargs={'celery_app': celery_app})
 api.add_resource(TareaResource, '/api/tasks/<int:tarea_id>')
 api.add_resource(TareaBorrarResource, '/api/tasks/<int:tarea_id>')
 api.add_resource(VistaSignUp, '/api/auth/signup')

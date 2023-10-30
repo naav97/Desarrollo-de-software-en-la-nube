@@ -1,5 +1,4 @@
 import os
-import subprocess
 import hashlib
 from modelos import db, Usuario, Tarea, TareaSchema, UsuarioSchema
 from flask_restful import Resource
@@ -8,7 +7,6 @@ from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, asc
-from app import celery_app
 import uuid
 
 tarea_schema = TareaSchema()
@@ -22,6 +20,11 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class TareasResource(Resource):
+    __name__ = 'TareasResource'
+
+    def __init__(self, celery_app):
+        self.celery_app = celery_app
+
     @jwt_required()
     def get(self):
         id_usuario = get_jwt_identity()
@@ -55,7 +58,7 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id))
+                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id))
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()
