@@ -1,5 +1,4 @@
 import os
-import subprocess
 import hashlib
 from modelos import db, Usuario, Tarea, TareaSchema, UsuarioSchema
 from flask_restful import Resource
@@ -20,24 +19,12 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@shared_task(ignore_result=False)
-def process_file(old_filename, new_filename, taskId):
-    uploaded_file = os.path.join('./uploads', old_filename)
-    processed_file = os.path.join('./uploads', new_filename)
-    cmd = ['ffmpeg', '-i', uploaded_file,  processed_file]
-    task = Tarea.query.filter(Tarea.id == taskId).first()
-    try:
-        subprocess.run(cmd, check=True)
-        print("Procesando tarea")
-        task.estado = "processed"
-        db.session.commit()
-        return True
-    except Exception as e:
-        task.estado = "failed"
-        db.session.commit()
-        return str(e)
-
 class TareasResource(Resource):
+    __name__ = 'TareasResource'
+
+    def __init__(self, celery_app):
+        self.celery_app = celery_app
+
     @jwt_required()
     def get(self):
         id_usuario = get_jwt_identity()
@@ -71,7 +58,7 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                process_file.delay(nombreSec, nombreNuevo, nuevaT.id)
+                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id))
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()

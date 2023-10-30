@@ -20,7 +20,9 @@ services:
       retries: 5
       start_period: 20s
   api-conversor:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.app
     container_name: api-conversor
     networks:
       - app
@@ -28,6 +30,18 @@ services:
       - "5001:5000"
     volumes:
       - ./uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-conversor
+    networks:
+      - app
+    volumes:
+      - ./uploads:/worker/uploads
     depends_on:
       db:
         condition: service_healthy
