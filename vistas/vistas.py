@@ -1,5 +1,4 @@
 import os
-import subprocess
 import hashlib
 from modelos import db, Usuario, Tarea, TareaSchema, UsuarioSchema
 from flask_restful import Resource
@@ -8,35 +7,24 @@ from celery import shared_task
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, asc
+import uuid
 
 tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
 usario_schema = UsuarioSchema()
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = '/home/giancarlo_corredor/bucket'
 ALLOWED_EXTENSIONS = {'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'webm', 'avi', 'mpeg', 'wmv'}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@shared_task(ignore_result=False)
-def process_file(old_filename, new_filename, taskId):
-    uploaded_file = os.path.join('./uploads', old_filename)
-    processed_file = os.path.join('./uploads', new_filename)
-    cmd = ['ffmpeg', '-i', uploaded_file,  processed_file]
-    task = Tarea.query.filter(Tarea.id == taskId).first()
-    try:
-        subprocess.run(cmd, check=True)
-        print("Procesando tarea")
-        task.estado = "processed"
-        db.session.commit()
-        return True
-    except Exception as e:
-        task.estado = "failed"
-        db.session.commit()
-        return str(e)
-
 class TareasResource(Resource):
+    __name__ = 'TareasResource'
+
+    def __init__(self, celery_app):
+        self.celery_app = celery_app
+
     @jwt_required()
     def get(self):
         id_usuario = get_jwt_identity()
@@ -57,7 +45,7 @@ class TareasResource(Resource):
         if request.files['archivo'].filename == '':
             return {"message": "Error no se envia archivo"}, 400
         if allowed_file(request.files['archivo'].filename):
-            nombreSec = secure_filename(request.files['archivo'].filename)
+            nombreSec = str(uuid.uuid1())+secure_filename(request.files['archivo'].filename)
             request.files['archivo'].save(os.path.join(UPLOAD_FOLDER, nombreSec))
             nombreNuevo = nombreSec.rsplit('.', 1)[0]+'.'+request.form.get('formato')
             try:
@@ -70,7 +58,7 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                process_file.delay(nombreSec, nombreNuevo, nuevaT.id)
+                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()
@@ -84,7 +72,7 @@ class TareaResource(Resource):
         tarea = Tarea.query.filter_by(id=tarea_id, id_usuario=id_usuario).first()
 
         if tarea:
-            return {"Tarea":tarea_schema.dump(tarea), "URL": "http://localhost:5001/api/download/" + tarea.archivo_nuevo}, 200
+            return {"Tarea":tarea_schema.dump(tarea), "URL": "http://ip/api/download/" + tarea.archivo_nuevo}, 200
         else:
             return {"message": "Tarea no encontrada"}, 404
 
