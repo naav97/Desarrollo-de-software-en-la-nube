@@ -48,4 +48,3 @@ def process_file(old_filename, new_filename, taskId):
         session.commit()
         return str(e)
 
-process_file("trump-drops-pen.webm", "trump-drops-pen.avi", 34)
