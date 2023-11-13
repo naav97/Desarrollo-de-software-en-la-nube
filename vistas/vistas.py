@@ -13,7 +13,7 @@ tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
 usario_schema = UsuarioSchema()
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = '/home/giancarlo_corredor/bucket'
 ALLOWED_EXTENSIONS = {'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'webm', 'avi', 'mpeg', 'wmv'}
 def allowed_file(filename):
     return '.' in filename and \
@@ -58,7 +58,7 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id))
+                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()
@@ -72,7 +72,7 @@ class TareaResource(Resource):
         tarea = Tarea.query.filter_by(id=tarea_id, id_usuario=id_usuario).first()
 
         if tarea:
-            return {"Tarea":tarea_schema.dump(tarea), "URL": "http://localhost:5001/api/download/" + tarea.archivo_nuevo}, 200
+            return {"Tarea":tarea_schema.dump(tarea), "URL": "http://ip/api/download/" + tarea.archivo_nuevo}, 200
         else:
             return {"message": "Tarea no encontrada"}, 404
 
