@@ -58,7 +58,7 @@ subs = pubsub_v1.SubscriberClient()
 subpath = subs.subscription_path(project, subscription)
 
 while True:
-    res = subs.pull(subpath, max_messages=1, return_immediately=True)
+    res = subs.pull(subscription=subpath, max_messages=1, return_immediately=True)
 
     if res.received_messages:
         message = res.received_messages.messages[0]
