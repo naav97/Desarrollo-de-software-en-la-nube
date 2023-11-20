@@ -63,7 +63,7 @@ while True:
     if res.received_messages:
         message = res.received_messages.messages[0]
         print(message)
-        message.ack()
+        subs.acknowledge(subscription=subpath, ack_ids=[res.ack_id])
     else:
         print("Nada nuevo")
 
