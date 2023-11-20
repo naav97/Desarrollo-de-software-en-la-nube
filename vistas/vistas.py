@@ -8,6 +8,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, asc
 import uuid
+import json
 
 tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
@@ -22,8 +23,9 @@ def allowed_file(filename):
 class TareasResource(Resource):
     __name__ = 'TareasResource'
 
-    def __init__(self, celery_app):
-        self.celery_app = celery_app
+    def __init__(self, pubsub_publisher, topic_name):
+        self.pubsub_publisher = pubsub_publisher
+        self.topic_name = topic_name
 
     @jwt_required()
     def get(self):
@@ -58,7 +60,10 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
+                message = json.dumps({'original': nombreSec, 'nuevo': nombreNuevo, 'id_tarea': nuevaT.id})
+                future = self.pubsub_publisher.publish(self.topic_name, bytes(message, encoding='utf8'))
+                future.result()
+                # self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()
