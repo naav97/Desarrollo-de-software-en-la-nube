@@ -22,8 +22,9 @@ def allowed_file(filename):
 class TareasResource(Resource):
     __name__ = 'TareasResource'
 
-    def __init__(self, celery_app):
-        self.celery_app = celery_app
+    def __init__(self, pubsub_publisher, topic_name):
+        self.pubsub_publisher = pubsub_publisher
+        self.topic_name = topic_name
 
     @jwt_required()
     def get(self):
@@ -58,7 +59,9 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
+                future = self.pubsub_publisher.publish(self.topic_name, b'My first message!', spam='eggs')
+                future.result()
+                # self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
                 return {"message": "Tarea creada"}, 201
             except Exception as e:
                 db.session.rollback()
