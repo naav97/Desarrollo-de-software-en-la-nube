@@ -61,7 +61,7 @@ class TareasResource(Resource):
                 db.session.add(nuevaT)
                 db.session.commit()
                 message = json.dumps({'original': nombreSec, 'nuevo': nombreNuevo, 'id_tarea': nuevaT.id})
-                future = self.pubsub_publisher.publish(self.topic_name, message)
+                future = self.pubsub_publisher.publish(self.topic_name, bytes(message, encoding='utf8'))
                 future.result()
                 # self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
                 return {"message": "Tarea creada"}, 201
