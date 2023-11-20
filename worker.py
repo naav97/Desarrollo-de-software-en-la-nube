@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+import json
 # from celery import Celery
 from modelos import Tarea
 # from sqlalchemy import create_engine
@@ -61,9 +62,12 @@ while True:
     res = subs.pull(subscription=subpath, max_messages=1, return_immediately=True)
 
     if res.received_messages:
-        message = res.received_messages.messages[0]
-        print(message)
-        subs.acknowledge(subscription=subpath, ack_ids=[res.ack_id])
+        message = res.received_messages[0].message.data
+        # print(message)
+        data = json.loads(message.decode('utf-8'))
+        # print(data['original'])
+        process_file(data['original'], data['nuevo'], data['id_tarea'])
+        subs.acknowledge(subscription=subpath, ack_ids=[res.received_messages[0].ack_id])
     else:
         print("Nada nuevo")
 
