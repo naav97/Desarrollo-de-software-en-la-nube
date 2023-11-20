@@ -5,10 +5,10 @@ from modelos import db
 from vistas import TareasResource, TareaResource, TareaBorrarResource, VistaSignUp, VistaLogIn, VistaDownload
 from flask_jwt_extended import JWTManager
 from google.cloud.sql.connector import Connector, IPTypes
-from google.cloud import pubsub_v1
+from google.cloud import pubsub
 
 # initialize pubsub publisher
-publisher = pubsub_v1.PublisherClient()
+publisher = pubsub.PublisherClient()
 topic_name = 'projects/{project_id}/topics/{topic}'.format(
     project_id='misw4204-202315-grupo21',
     topic='conversor'

@@ -8,6 +8,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, asc
 import uuid
+import json
 
 tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
@@ -59,7 +60,8 @@ class TareasResource(Resource):
                 )
                 db.session.add(nuevaT)
                 db.session.commit()
-                future = self.pubsub_publisher.publish(self.topic_name, b'My first message!', spam='eggs')
+                message = json.dumps({'original': nombreSec, 'nuevo': nombreNuevo, 'id_tarea': nuevaT.id})
+                future = self.pubsub_publisher.publish(self.topic_name, message)
                 future.result()
                 # self.celery_app.send_task('process_file', (nombreSec, nombreNuevo, nuevaT.id), countdown=1)
                 return {"message": "Tarea creada"}, 201
