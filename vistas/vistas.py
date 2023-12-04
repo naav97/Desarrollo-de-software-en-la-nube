@@ -14,7 +14,7 @@ tarea_schema = TareaSchema()
 tareas_schema = TareaSchema(many=True)
 usario_schema = UsuarioSchema()
 
-UPLOAD_FOLDER = '/home/giancarlo_corredor/bucket'
+UPLOAD_FOLDER = '/app/uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'webm', 'avi', 'mpeg', 'wmv'}
 def allowed_file(filename):
     return '.' in filename and \

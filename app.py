@@ -37,7 +37,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY']= 'super-secreto'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['UPLOAD_FOLDER'] = '/home/giancarlo_corredor/bucket'
+app.config['UPLOAD_FOLDER'] = '/app/uploads'
 
 app_context = app.app_context()
 app_context.push()
