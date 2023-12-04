@@ -157,3 +157,6 @@ postgres-data/
 terraform.tfstate
 terraform.tfstate.backup
 gitignore.auto.tfvars
+
+# Google
+credenciales.json
